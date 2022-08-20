@@ -1,0 +1,57 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["referentialActions"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+    id          Int  @default(autoincrement()) @id
+  username        String @unique
+  email       String @unique
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  boards      Board[]
+  workspaces Workspace[]
+}
+
+model Board {
+    id          Int @default(autoincrement()) @id
+  title        String @unique
+  color        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  workspaceId Int
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  user       User? @relation(fields: [userId], references: [id])
+  cards      Card[]
+}
+
+model Card {
+    id          Int @default(autoincrement()) @id
+  title        String @unique
+    description  String?
+  color        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  boardId     Int
+  board       Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+}
+
+model Workspace {
+    id          Int @default(autoincrement()) @id
+  title        String @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      Int
+  user       User? @relation(fields: [userId], references: [id])
+  boards      Board[]
+}
